@@ -1,0 +1,6 @@
+[submodule "bp-strapi"]
+	path = bp-strapi
+	url = git@github.com:ignissak/bp-strapi.git
+[submodule "bp-next-meta"]
+	path = bp-next-meta
+	url = git@github.com:ignissak/bp-next-meta.git
