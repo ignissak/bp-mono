@@ -1,0 +1,8 @@
+- run strapi-db
+- run prisma migrate deploy inside bp-next-meta (update .env there)
+- run docker compose build frontend-next
+- turn off strapi-db
+- docker compose up
+- log into localhost:1337 and create admin account
+- regenerate api token for read access and put it in .env
+- restart docker compose

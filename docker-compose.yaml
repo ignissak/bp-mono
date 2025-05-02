@@ -1,0 +1,82 @@
+services:
+  strapi-db:
+    image: postgres:17
+    container_name: strapi-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - strapi-db-data:/var/lib/postgresql/data
+      - ./db-init.sh:/docker-entrypoint-initdb.d/db-init.sh
+    networks:
+      - strapi-network
+    ports:
+      - 5432:5432
+
+  strapi-cms:
+    depends_on:
+      - strapi-db
+    image: ghcr.io/ignissak/bp-strapi:main
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: strapi-cms
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DATABASE_CLIENT=postgres
+      - DATABASE_URL=postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@strapi-db:5432/${DATABASE_NAME}
+      - NODE_ENV=production
+    ports:
+      - 1337:1337
+    networks:
+      - strapi-network
+
+  frontend-next:
+    depends_on:
+      - strapi-cms
+      - strapi-db
+    container_name: frontend-next
+    build:
+      context: ./bp-next-meta
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:1337/api
+      - NODE_ENV=production
+    ports:
+      - 3000:1337
+    networks:
+      - strapi-network
+
+  # frontend-db:
+  #   image: postgres:17
+  #   container_name: frontend-db
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - POSTGRES_USER=${DATABASE_USERNAME}
+  #     - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+  #     - POSTGRES_DB=${DATABASE_NAME_FRONTEND}
+  #   ports:
+  #     - 5433:5432
+  #   networks:
+  #     - frontend-network
+  #   volumes:
+  #     - frontend-db-data:/var/lib/postgresql/data
+
+networks:
+  strapi-network:
+    driver: bridge
+
+volumes:
+  strapi-db-data:
+    driver: local
