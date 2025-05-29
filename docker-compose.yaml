@@ -32,6 +32,8 @@ services:
       - DATABASE_CLIENT=postgres
       - DATABASE_URL=postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@strapi-db:5432/${DATABASE_NAME}
       - NODE_ENV=production
+    volumes:
+      - strapi-cms-data:/opt/app
     ports:
       - 1337:1337
     networks:
@@ -49,7 +51,6 @@ services:
     env_file:
       - .env
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:1337/api
       - NODE_ENV=production
     ports:
       - 3000:1337
@@ -79,4 +80,6 @@ networks:
 
 volumes:
   strapi-db-data:
+    driver: local
+  strapi-cms-data:
     driver: local
